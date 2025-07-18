@@ -150,21 +150,23 @@ class SecurityDashboard extends Page
                 ->icon($isLockdownActive ? 'heroicon-o-lock-open' : 'heroicon-o-lock-closed')
                 ->color($isLockdownActive ? 'success' : 'danger')
                 ->requiresConfirmation()
-        ->modalHeading($isLockdownActive ? '🔓 Deactivate Emergency Lockdown' : '⚠️ ACTIVATE EMERGENCY LOCKDOWN')
+                ->modalHeading($isLockdownActive ? '🔓 Deactivate Emergency Lockdown' : '⚠️ ACTIVATE EMERGENCY LOCKDOWN')
                 ->modalDescription($isLockdownActive ?
-        'This will deactivate the emergency lockdown and restore normal system operations. Users will regain access to the website.' :
-                    '⚠️ WARNING: This will activate a FULL SYSTEM LOCKDOWN including:
-
-• 🚫 Enable maintenance mode (blocks entire website)
-• 🔒 Block suspicious IP addresses automatically  
-• 👥 Clear all user sessions (except yours)
-• 🛡️ Add emergency .htaccess protection
-• 📧 Notify all administrators immediately
-• 💾 Create emergency backup of critical files
-
-Use ONLY in case of active security threats or breaches!
-
-The entire website will be inaccessible to users until you deactivate the lockdown.')
+                    'This will deactivate the emergency lockdown and restore normal system operations. Users will regain access to the website.' :
+                    new \Illuminate\Support\HtmlString('
+                        ⚠️ WARNING: This will activate a FULL SYSTEM LOCKDOWN including:<br><br>
+                        <div style="text-align: left; font-size: 16px;" class="text-left">
+                        - <svg class="inline w-4 h-4 text-red-500" fill="#dc2626" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm-3.75 8.25v-3a3.75 3.75 0 117.5 0v3h-7.5z" clip-rule="evenodd" /></svg> Enable maintenance mode (blocks entire site)<br>
+                        - <svg class="inline w-4 h-4 text-red-500" fill="#dc2626" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.814 3.051 10.077 9.75 12.98a.75.75 0 00.5 0c6.699-2.903 9.75-7.166 9.75-12.98 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.515 11.209 11.209 0 01-7.877-3.08z" clip-rule="evenodd" /></svg> Block suspicious IP addresses automatically<br>
+                        - <svg class="inline w-4 h-4 text-blue-500" fill="#2563eb" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M8.25 6.75a3.75 3.75 0 117.5 0 3.75 3.75 0 01-7.5 0zM15.75 9.75a3 3 0 116 0 3 3 0 01-6 0zM2.25 9.75a3 3 0 116 0 3 3 0 01-6 0zM6.31 15.117A6.745 6.745 0 0112 12a6.745 6.745 0 016.709 7.498.75.75 0 01-.372.568A12.696 12.696 0 0112 21.75c-2.305 0-4.47-.612-6.337-1.684a.75.75 0 01-.372-.568 6.787 6.787 0 011.019-1.381z" clip-rule="evenodd" /></svg> Clear all user sessions (except yours)<br>
+                        - <svg class="inline w-4 h-4 text-green-500" fill="#16a34a" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M15.75 1.5a6.75 6.75 0 00-6.651 7.906c.067.39-.032.717-.221.906l-6.5 6.499a3 3 0 00-.878 2.121v2.818c0 .414.336.75.75.75H6a.75.75 0 00.75-.75v-1.5h1.5A.75.75 0 009 19.5V18h1.5a.75.75 0 00.53-.22l2.658-2.658c.19-.189.517-.288.906-.22A6.75 6.75 0 1015.75 1.5zm0 3a.75.75 0 000 1.5A2.25 2.25 0 0118 8.25a.75.75 0 001.5 0 3.75 3.75 0 00-3.75-3.75z" clip-rule="evenodd" /></svg> Add emergency .htaccess protection<br>
+                        - <svg class="inline w-4 h-4 text-blue-500" fill="#2563eb" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg> Notify all administrators immediately<br>
+                        - <svg class="inline w-4 h-4 text-purple-500" fill="#9333ea" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-5.379a.75.75 0 01-.53-.22L11.47 3.66A2.25 2.25 0 009.879 3H4.5a3 3 0 00-3 3v12a3 3 0 003 3h15zm-6.75-10.5a.75.75 0 00-1.5 0v4.19l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V10.5z" clip-rule="evenodd" /></svg> Create emergency backup of critical files<br><br>
+                        </div>
+                        <strong>Use ONLY in case of active security threats or breaches!</strong><br><br>
+                        The entire website will be inaccessible to users until you deactivate the lockdown.
+                    ')
+                )
                 ->modalSubmitActionLabel($isLockdownActive ? 'Deactivate Lockdown' : '🚨 ACTIVATE LOCKDOWN')
                 ->action(function () use ($lockdownService, $isLockdownActive) {
         try {
