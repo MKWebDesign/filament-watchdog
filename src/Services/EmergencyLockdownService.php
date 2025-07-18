@@ -979,14 +979,52 @@ public function getLockdownStatus(): ?array
 
 /**
  * Get emergency access URL for administrators
+ * Fixed to work with Laravel maintenance mode properly
  */
 public function getEmergencyAccessUrl(): ?string
 {
     $secret = Cache::get('emergency_lockdown_secret');
     if ($secret) {
-        return url('/?secret=' . $secret);
+        // Laravel maintenance mode expects the secret in a specific format
+        // The URL should be: domain.com/secret-key (not as a query parameter)
+        return url('/' . $secret);
     }
     return null;
+}
+
+/**
+ * Get emergency access information with multiple options
+ */
+public function getEmergencyAccessInfo(): array
+{
+    $secret = Cache::get('emergency_lockdown_secret');
+    $lockdownInfo = Cache::get('emergency_lockdown_active');
+
+    if (!$secret) {
+        return [
+            'access_available' => false,
+            'message' => 'No emergency access configured'
+        ];
+    }
+
+    return [
+        'access_available' => true,
+        'secret_key' => $secret,
+        'primary_url' => url('/' . $secret),
+        'alternative_urls' => [
+            // Some servers might need these alternative formats
+            url('/?secret=' . $secret),
+            url('/index.php/' . $secret),
+        ],
+        'cli_command' => "php artisan up --secret={$secret}",
+        'lockdown_info' => $lockdownInfo,
+        'instructions' => [
+            'Try the primary URL first: ' . url('/' . $secret),
+            'If that doesn\'t work, try adding /admin after the secret',
+            'Alternative: Use the CLI command to bring the site up',
+            'Then navigate to your admin panel normally'
+        ]
+    ];
 }
 
 // Helper methods
@@ -1013,50 +1051,80 @@ private function sendLockdownNotification(string $email, array $details): void
 
 private function buildLockdownEmailContent(array $details): string
 {
-    $accessUrl = url('/?secret=' . $details['secret_key']);
+    $primaryAccessUrl = url('/' . $details['secret_key']);
+    $alternativeAccessUrl = url('/?secret=' . $details['secret_key']);
+    $adminUrl = url('/' . $details['secret_key'] . '/admin');
 
     return "
-        <h1 style=\"color: #dc3545;\">🚨 EMERGENCY LOCKDOWN ACTIVATED</h1>
-        <h2>IMMEDIATE ATTENTION REQUIRED</h2>
-        
-        <p><strong>An emergency security lockdown has been activated on your system.</strong></p>
-        
-        <h3>📋 Lockdown Details:</h3>
-        <ul>
-            <li><strong>Lockdown ID:</strong> {$details['lockdown_id']}</li>
-            <li><strong>Alert ID:</strong> {$details['alert_id']}</li>
-            <li><strong>Activated By:</strong> {$details['activated_by']}</li>
-            <li><strong>Time:</strong> {$details['activated_at']}</li>
-            <li><strong>IP Address:</strong> {$details['ip_address']}</li>
-        </ul>
+        <div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">
+            <h1 style=\"color: #dc3545; text-align: center;\">🚨 EMERGENCY LOCKDOWN ACTIVATED</h1>
+            <h2 style=\"color: #dc3545; text-align: center;\">IMMEDIATE ATTENTION REQUIRED</h2>
+            
+            <div style=\"background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;\">
+                <p><strong>An emergency security lockdown has been activated on your system.</strong></p>
+            </div>
+            
+            <h3 style=\"color: #495057;\">📋 Lockdown Details:</h3>
+            <table style=\"width: 100%; border-collapse: collapse;\">
+                <tr><td><strong>Lockdown ID:</strong></td><td>{$details['lockdown_id']}</td></tr>
+                <tr><td><strong>Alert ID:</strong></td><td>{$details['alert_id']}</td></tr>
+                <tr><td><strong>Activated By:</strong></td><td>{$details['activated_by']}</td></tr>
+                <tr><td><strong>Time:</strong></td><td>{$details['activated_at']}</td></tr>
+                <tr><td><strong>IP Address:</strong></td><td>{$details['ip_address']}</td></tr>
+            </table>
 
-        <h3>🔑 Emergency Access:</h3>
-        <p><strong>Use this link to access the system during lockdown:</strong></p>
-        <p><a href=\"{$accessUrl}\" style=\"background: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;\">{$accessUrl}</a></p>
-        
-        <h3>⚠️ Actions Taken:</h3>
-        <ul>
-            <li>✅ Maintenance mode activated</li>
-            <li>✅ Suspicious IPs blocked</li>
-            <li>✅ User sessions cleared</li>
-            <li>✅ Emergency backup created</li>
-            <li>✅ Enhanced .htaccess protection enabled</li>
-        </ul>
+            <h3 style=\"color: #495057;\">🔑 Emergency Access Options:</h3>
+            <div style=\"background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0;\">
+                <h4>Option 1: Primary Access URL (Recommended)</h4>
+                <p><a href=\"{$primaryAccessUrl}\" style=\"background: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;\">{$primaryAccessUrl}</a></p>
+                
+                <h4>Option 2: Alternative URLs (if primary doesn't work)</h4>
+                <ul>
+                    <li><a href=\"{$alternativeAccessUrl}\">{$alternativeAccessUrl}</a></li>
+                    <li><a href=\"{$adminUrl}\">{$adminUrl}</a></li>
+                </ul>
+                
+                <h4>Option 3: Command Line Access</h4>
+                <code style=\"background: #f8f9fa; padding: 5px; border-radius: 3px; display: block; margin: 5px 0;\">
+                    php artisan up --secret={$details['secret_key']}
+                </code>
+                <p><em>Then navigate to your admin panel: <a href=\"" . url('/admin') . "\">" . url('/admin') . "</a></em></p>
+            </div>
+            
+            <h3 style=\"color: #495057;\">⚠️ Actions Taken:</h3>
+            <ul>
+                <li>✅ Maintenance mode activated</li>
+                <li>✅ Suspicious IPs blocked</li>
+                <li>✅ User sessions cleared</li>
+                <li>✅ Emergency backup created</li>
+                <li>✅ Enhanced security protection enabled</li>
+            </ul>
 
-        <h3>🔧 Next Steps:</h3>
-        <ol>
-            <li>Access the admin panel using the emergency link above</li>
-            <li>Review the security dashboard immediately</li>
-            <li>Investigate the security incident</li>
-            <li>Deactivate lockdown when threat is resolved</li>
-        </ol>
+            <h3 style=\"color: #495057;\">🔧 Next Steps:</h3>
+            <ol>
+                <li><strong>Access the system</strong> using one of the emergency URLs above</li>
+                <li><strong>Review the security dashboard</strong> immediately</li>
+                <li><strong>Investigate the security incident</strong> that triggered the lockdown</li>
+                <li><strong>Deactivate lockdown</strong> when the threat is resolved</li>
+            </ol>
 
-        <hr>
-        <p><em>This is an automated emergency notification from FilamentWatchdog Security System.</em></p>
-        <p><em>Do not reply to this email. Access the admin panel for more information.</em></p>
+            <div style=\"background: #d1ecf1; padding: 15px; border-radius: 8px; margin: 20px 0;\">
+                <h4 style=\"color: #0c5460;\">💡 Access Troubleshooting:</h4>
+                <ul>
+                    <li>Try the primary URL first</li>
+                    <li>If you get a maintenance page, check the URL format</li>
+                    <li>Clear your browser cache if needed</li>
+                    <li>Use CLI access as a fallback option</li>
+                    <li>Contact your hosting provider if none work</li>
+                </ul>
+            </div>
+
+            <hr style=\"margin: 30px 0;\">
+            <p style=\"font-size: 12px; color: #6c757d;\"><em>This is an automated emergency notification from FilamentWatchdog Security System.</em></p>
+            <p style=\"font-size: 12px; color: #6c757d;\"><em>Do not reply to this email. Access the admin panel for more information.</em></p>
+        </div>
         ";
 }
-
 private function logLockdownActivation(string $lockdownId, array $results): void
 {
     Log::critical('EMERGENCY LOCKDOWN ACTIVATED', [
