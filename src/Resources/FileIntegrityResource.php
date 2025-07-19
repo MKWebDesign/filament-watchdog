@@ -12,9 +12,22 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use MKWebDesign\FilamentWatchdog\Models\FileIntegrityCheck;
 use MKWebDesign\FilamentWatchdog\Resources\FileIntegrityResource\Pages;
 use MKWebDesign\FilamentWatchdog\Resources\FileIntegrityResource\RelationManagers;
+use MKWebDesign\FilamentWatchdog\Traits\ConfiguresWatchdogNavigation;
 
 class FileIntegrityResource extends Resource
 {
+    use ConfiguresWatchdogNavigation;  // <- Deze regel moet erin!
+
+    protected static function getNavigationVisibility(): string
+    {
+        return 'conditional'; // <- Deze moet 'conditional' zijn, niet 'always'
+    }
+
+    protected static function getDefaultSecuritySort(): int
+    {
+        return 1;
+    }
+
     protected static ?string $model = FileIntegrityCheck::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Security';

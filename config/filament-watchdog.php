@@ -147,4 +147,47 @@ return [
         'execution_time_limit' => 300,
         'batch_size' => 100,
     ],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Navigation Settings
+    |--------------------------------------------------------------------------
+    |
+    | Configure how the Watchdog navigation appears in your Filament admin panel
+    |
+    */
+    'navigation' => [
+        'security' => [
+            /*
+            | Set to true to show the Security navigation group collapsed by default
+            */
+            'collapsed' => true,
+
+            /*
+            | Set to true to only show Security navigation when on security pages
+            | When false, the navigation is always visible (but can be collapsed)
+            */
+            'only_on_security_pages' => false,
+
+            /*
+            | Set to true to completely hide all security navigation
+            | This overrides all other navigation settings
+            */
+            'hidden' => false,
+
+            /*
+            | Icon for the Security navigation group
+            | Uses Heroicons by default
+            */
+            'icon' => 'heroicon-o-shield-check',
+
+            /*
+            | Sort order for the Security navigation group
+            | Higher numbers appear later in the navigation
+            */
+            'sort' => 100,
+        ],
+    ],
+
 ];

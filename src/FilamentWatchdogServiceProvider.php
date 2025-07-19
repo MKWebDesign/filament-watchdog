@@ -5,6 +5,8 @@ namespace MKWebDesign\FilamentWatchdog;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\File;
+use Filament\Facades\Filament;
+use Filament\Navigation\NavigationGroup;
 use MKWebDesign\FilamentWatchdog\Commands\ScanFilesCommand;
 use MKWebDesign\FilamentWatchdog\Commands\CreateBaselineCommand;
 use MKWebDesign\FilamentWatchdog\Commands\CleanupLogsCommand;
@@ -57,9 +59,12 @@ class FilamentWatchdogServiceProvider extends ServiceProvider
                 CreateBaselineCommand::class,
                 CleanupLogsCommand::class,
                 EmergencyLockdownCommand::class,
-                PublishViewsCommand::class, // New command for publishing views
+                PublishViewsCommand::class,
             ]);
         }
+
+        // Configure Filament navigation
+        $this->configureFilamentNavigation();
 
         // Auto-publish emergency views on installation (if enabled in config)
         if (config('filament-watchdog.emergency.auto_publish_views', true)) {
@@ -78,6 +83,97 @@ class FilamentWatchdogServiceProvider extends ServiceProvider
             // Cleanup logs daily
             $schedule->command('watchdog:cleanup', ['--force'])->daily();
         });
+    }
+
+    /**
+     * Configure Filament navigation based on package settings
+     */
+    protected function configureFilamentNavigation(): void
+    {
+        if (! $this->app->runningInConsole() && class_exists(Filament::class)) {
+            Filament::serving(function () {
+                $this->registerSecurityNavigationGroup();
+            });
+        }
+    }
+
+    /**
+     * Register the Security navigation group with configurable behavior
+     */
+    protected function registerSecurityNavigationGroup(): void
+    {
+        try {
+            $panel = Filament::getCurrentPanel();
+
+            if (! $panel) {
+                return;
+            }
+
+            // Get navigation settings from config
+            $navigationConfig = config('filament-watchdog.navigation.security', []);
+            $collapsed = $navigationConfig['collapsed'] ?? true;
+            $onlyOnSecurityPages = $navigationConfig['only_on_security_pages'] ?? false;
+            $hidden = $navigationConfig['hidden'] ?? false;
+
+            // Don't register anything if completely hidden
+            if ($hidden) {
+                return;
+            }
+
+            // Determine visibility
+            $visible = true;
+            if ($onlyOnSecurityPages) {
+                $visible = $this->isOnSecurityPage();
+            }
+
+            // Register the navigation group
+            $existingGroups = $panel->getNavigationGroups();
+            $securityGroupExists = collect($existingGroups)->contains(fn($group) =>
+                $group instanceof NavigationGroup && $group->getLabel() === 'Security'
+            );
+
+            if (! $securityGroupExists && $visible) {
+                $panel->navigationGroups([
+                    ...$existingGroups,
+                    NavigationGroup::make('Security')
+                        ->collapsed($collapsed)
+                        ->collapsible(true)
+                    // ->icon($navigationConfig['icon'] ?? 'heroicon-o-shield-check') // Removed to allow individual item icons
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Silent fail to prevent breaking the app
+            if (function_exists('logger')) {
+                logger()->warning('FilamentWatchdog: Failed to configure navigation', ['error' => $e->getMessage()]);
+            }
+        }
+    }
+
+    /**
+     * Check if we're currently on a security-related page
+     */
+    protected function isOnSecurityPage(): bool
+    {
+        $currentRoute = request()->route()?->getName() ?? '';
+
+        $securityRoutes = [
+            'security',
+            'watchdog',
+            'file-integrity',
+            'malware',
+            'threat',
+            'forensic',
+            'activity-logs',
+            'security-alerts'
+        ];
+
+        foreach ($securityRoutes as $route) {
+            if (str_contains($currentRoute, $route)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

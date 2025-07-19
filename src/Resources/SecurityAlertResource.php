@@ -12,9 +12,23 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use MKWebDesign\FilamentWatchdog\Models\SecurityAlert;
 use MKWebDesign\FilamentWatchdog\Resources\SecurityAlertResource\Pages;
 use MKWebDesign\FilamentWatchdog\Resources\SecurityAlertResource\RelationManagers;
+use MKWebDesign\FilamentWatchdog\Traits\ConfiguresWatchdogNavigation;
 
 class SecurityAlertResource extends Resource
 {
+    use ConfiguresWatchdogNavigation;  // <- Deze regel moet erin!
+
+    protected static function getNavigationVisibility(): string
+    {
+        return 'conditional'; // <- Deze moet 'conditional' zijn, niet 'always'
+    }
+
+    protected static function getDefaultSecuritySort(): int
+    {
+        return 4;
+    }
+
+
     protected static ?string $model = SecurityAlert::class;
     protected static ?string $navigationIcon = 'heroicon-o-exclamation-triangle';
     protected static ?string $navigationGroup = 'Security';
