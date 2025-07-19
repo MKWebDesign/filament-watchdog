@@ -1,16 +1,43 @@
-# FilamentWatchdog
+<p align="center">
+    <img src="https://raw.githubusercontent.com/mkwebdesign/filament-watchdog/main/art/logo.png" alt="FilamentWatchdog Logo" width="400">
+</p>
 
-Advanced security monitoring and intrusion detection plugin for FilamentPHP.
+<h1 align="center">FilamentWatchdog</h1>
+
+<p align="center">
+    <strong>Advanced security monitoring and intrusion detection plugin for FilamentPHP</strong>
+</p>
+
+<p align="center">
+    <a href="https://packagist.org/packages/mkwebdesign/filament-watchdog">
+        <img alt="Latest Version on Packagist" src="https://img.shields.io/packagist/v/mkwebdesign/filament-watchdog.svg?style=flat-square">
+    </a>
+    <a href="https://packagist.org/packages/mkwebdesign/filament-watchdog">
+        <img alt="Total Downloads" src="https://img.shields.io/packagist/dt/mkwebdesign/filament-watchdog.svg?style=flat-square">
+    </a>
+    <a href="https://github.com/mkwebdesign/filament-watchdog/blob/main/LICENSE.md">
+        <img alt="License" src="https://img.shields.io/packagist/l/mkwebdesign/filament-watchdog.svg?style=flat-square">
+    </a>
+</p>
+
+---
 
 ## Features
 
-* Real-time file integrity monitoring
-* Malware detection with signature scanning
-* Activity logging and anomaly detection
-* Email alerts for security events
-* Forensic analysis tools
-* Quarantine system for suspicious files
-* Emergency lockdown system
+🛡️ **Real-time Protection**
+- Real-time file integrity monitoring
+- Automated malware detection with signature scanning
+- Activity logging and anomaly detection
+
+🚨 **Alert System**
+- Email alerts for security events
+- Customizable notification thresholds
+- Real-time dashboard notifications
+
+🔍 **Forensic Tools**
+- Detailed forensic analysis tools
+- Quarantine system for suspicious files
+- Emergency lockdown system
 
 ## Installation
 
@@ -85,7 +112,7 @@ crontab -e
 * * * * * php /home/username/domains/yoursite.com/public_html/artisan schedule:run >> /dev/null 2>&1
 ```
 
-**Note:** This is the standard Laravel scheduler cronjob that should run every minute. FilamentWatchdog will automatically schedule its security scans within this framework.
+> **Note:** This is the standard Laravel scheduler cronjob that should run every minute. FilamentWatchdog will automatically schedule its security scans within this framework.
 
 **Manual scan commands:**
 
@@ -172,13 +199,26 @@ Make sure the web server user has write permissions to:
 - `storage/logs/` directory
 - `storage/app/quarantine/` directory
 
+## Support
+
+Need help? Feel free to:
+- Open an issue on [GitHub](https://github.com/mkwebdesign/filament-watchdog/issues)
+- Contact us directly via email
+
 ## Author
 
-Martin Knops | MKWebDesign
+**Martin Knops | MKWebDesign**
 
 * Website: [https://mkwebdesign.nl](https://mkwebdesign.nl)
 * Email: [info@mkwebdesign.nl](mailto:info@mkwebdesign.nl)
+* GitHub: [@mkwebdesign](https://github.com/mkwebdesign)
 
 ## License
 
-MIT License
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+---
+
+<p align="center">
+    Made with ❤️ by <a href="https://mkwebdesign.nl">MKWebDesign</a>
+</p>
