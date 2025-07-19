@@ -20,6 +20,18 @@ Install the package via Composer:
 composer require mkwebdesign/filament-watchdog:^1.0
 ```
 
+Publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag=filament-watchdog-config
+```
+
+Optionally, publish the views (if you want to customize them):
+
+```bash
+php artisan vendor:publish --tag=filament-watchdog-views
+```
+
 Then run the auto-installer script from your Laravel root directory:
 
 ```bash
@@ -33,6 +45,28 @@ php artisan migrate
 ```
 
 ## Configuration
+
+After publishing the config file, you can customize the settings in `config/filament-watchdog.php`:
+
+```php
+return [
+    'monitoring' => [
+        'enabled' => true,
+        'scan_interval' => 'everyMinute', // How often to run scans
+    ],
+    'alerts' => [
+        'email' => [
+            'enabled' => true,
+            'recipients' => ['admin@yoursite.com'],
+        ],
+    ],
+    'emergency' => [
+        'auto_publish_views' => true,
+        'lockdown_enabled' => true,
+    ],
+    // ... more settings
+];
+```
 
 ### Cronjob Setup (Required)
 
@@ -107,6 +141,22 @@ to access the security monitoring interface.
 * Cronjob access on your server
 
 ## Troubleshooting
+
+### Config Not Published?
+
+If the configuration file doesn't appear in `config/filament-watchdog.php`, try:
+
+```bash
+# Clear caches first
+php artisan config:clear
+php artisan cache:clear
+
+# Then publish again
+php artisan vendor:publish --tag=filament-watchdog-config --force
+
+# Verify the file exists
+ls -la config/filament-watchdog.php
+```
 
 ### Cronjob Not Working?
 
